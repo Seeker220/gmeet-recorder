@@ -1,37 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "GMeet Recorder",
-  "description": "Record GMeet Participants' Videos",
+  "name": "Google Meet Recorder",
   "version": "1.0",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "scripting",
-    "tabs"
-  ],
-  "host_permissions": [
-    "https://meet.google.com/*"
-  ],
+  "description": "Record participants in Google Meet sessions.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://meet.google.com/*"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/16.png",
-      "48": "icons/48.png",
-      "128": "icons/128.png"
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
     }
   },
   "content_scripts": [
     {
       "matches": ["https://meet.google.com/*"],
-      "js": ["content.js"]
+      "js": ["RecordRTC.js", "content.js"]
     }
-  ],
-  "icons": {
-    "16": "icons/16.png",
-    "48": "icons/48.png",
-    "128": "icons/128.png"
-  }
+  ]
 }
+

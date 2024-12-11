@@ -1,71 +1,32 @@
-let vlist = [];
-let recorders = [];
+document.getElementById('refresh').addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.tabs.sendMessage(tab.id, { action: 'refresh' });
+});
 
-function populateParticipants() {
-    const participantsList = document.getElementById('participantsList');
-    participantsList.innerHTML = '';
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'updateParticipants') {
+        const participantsList = document.getElementById('participants');
+        participantsList.innerHTML = ''; // Clear the list
 
-    vlist.forEach((item, index) => {
-        const participantDiv = document.createElement('div');
-        participantDiv.classList.add('participant');
+        message.participants.forEach(participant => {
+            const listItem = document.createElement('li');
+            listItem.textContent = participant.name;
 
-        const nameDiv = document.createElement('span');
-        nameDiv.textContent = item[1];
-        participantDiv.appendChild(nameDiv);
-
-        const startButton = document.createElement('button');
-        startButton.textContent = 'Start';
-        startButton.onclick = () => startRecording(index);
-        participantDiv.appendChild(startButton);
-
-        const stopButton = document.createElement('button');
-        stopButton.textContent = 'Stop';
-        stopButton.onclick = () => stopRecording(index);
-        participantDiv.appendChild(stopButton);
-
-        participantsList.appendChild(participantDiv);
-    });
-}
-
-async function refreshParticipants() {
-    chrome.runtime.sendMessage({ action: "getParticipants" }, (response) => {
-        if (response.status === "done") {
-            chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-                if (request.action === "participantsList") {
-                    const newParticipants = request.participants;
-                    newParticipants.forEach(newParticipant => {
-                        const exists = vlist.some(existingParticipant => existingParticipant[1] === newParticipant[1]);
-                        if (!exists) {
-                            vlist.push(newParticipant);
-                        }
-                    });
-                    populateParticipants();
-                }
+            const startButton = document.createElement('button');
+            startButton.textContent = 'Start';
+            startButton.addEventListener('click', () => {
+                chrome.tabs.sendMessage(sender.tab.id, { action: 'start', name: participant.name });
             });
-        }
-    });
-}
 
-async function startRecording(index) {
-    console.log(vlist)
-    const recorder = new RecordRTCPromisesHandler(vlist[index][0], {
-        type: 'video',
-        mimeType: 'video/webm;codecs=vp8,opus'
-    });
+            const stopButton = document.createElement('button');
+            stopButton.textContent = 'Stop';
+            stopButton.addEventListener('click', () => {
+                chrome.tabs.sendMessage(sender.tab.id, { action: 'stop', name: participant.name });
+            });
 
-    await recorder.startRecording();
-    recorders[index] = recorder;
-    console.log(`Recording started for ${vlist[index][1]}`);
-}
-
-async function stopRecording(index) {
-    const recorder = recorders[index];
-    if (!recorder) return;
-
-    await recorder.stopRecording();
-    const blob = await recorder.getBlob();
-    invokeSaveAsDialog(blob);
-    console.log(`Recording stopped for ${vlist[index][1]}`);
-}
-
-document.getElementById('refreshButton').addEventListener('click', refreshParticipants);
+            listItem.appendChild(startButton);
+            listItem.appendChild(stopButton);
+            participantsList.appendChild(listItem);
+        });
+    }
+});

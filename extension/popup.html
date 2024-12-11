@@ -1,28 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GMeet Recorder</title>
-  <style>
-    body {
-      width: 300px;
-      padding: 10px;
-    }
-    .participant {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .participant button {
-      margin-left: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<button id="refreshButton">Refresh</button>
-<div id="participantsList"></div>
-<script src="libs/RecordRTC.js"></script>
-<script src="popup.js"></script>
+  <h1>Google Meet Recorder</h1>
+  <button id="refresh">Refresh</button>
+  <ul id="participants"></ul>
+
+  <script src="popup.js"></script>
 </body>
 </html>
